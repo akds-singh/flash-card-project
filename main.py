@@ -13,15 +13,6 @@ words_data_list = []
 def on_right_sigh_clicked():
     next_card()
     save_into_words_to_learn_csv_file()
-    # flip_card()
-    # if is_right_sign_clicked:
-    #     # index_num = words_data_list.index(rand_item)
-    #     # print(index_num)
-    #     # words_data_list.pop(index_num)
-    #     words_data_list.remove(rand_item)
-    #     save_into_words_to_learn_csv_file()
-    #
-    #     # is_right_sign_clicked = 0
 
 
 def on_cross_sign_clicked():
@@ -42,34 +33,22 @@ def load_data():
     else:
         words_data_list = df.to_dict(orient='records')
 
-    # save_into_words_to_learn_csv_file()
-    print(words_data_list)
-
 
 # ------------------------------Create CSV file to save words  that need to learn -----------------------#
 def save_into_words_to_learn_csv_file():
     # load all data  to words_to_learn.csv file form words_data_list
-    print(words_data_list)
     words_data_list.remove(rand_item)
     df = pandas.DataFrame(words_data_list)
-    # print(df)
     df = df[['French', 'English']]
     df.to_csv('./data/words_to_learn.csv', index=False)
 
 
-# func for choice a random word form above dict------------------
+# func for choice a random word form words_data_list------------------
 
 def next_card():
     global after_ids_list, rand_item
-    print(after_ids_list)
-    # french_words_list = [val for val in dict_from_list_data.keys()]
     rand_item = random.choice(words_data_list)
-    print(rand_item)
-
     french_word = rand_item['French']
-    eng_word = rand_item['English']
-
-    # on_right_sigh_clicked()
 
     canvas.itemconfig(tagOrId=card_front, state='normal')
     canvas.itemconfig(tagOrId=title_word, text='French', fill='black')
@@ -87,24 +66,17 @@ def next_card():
 # ---------------------------------------------flip card function ---------------------------------------#
 def flip_card():
     global after_ids_list
-    # print(after_ids_list)
-    # window.after_cancel(after_ids_list)
-    # canvas.itemconfig(tagOrId=card_back, state='normal')
     canvas.itemconfig(tagOrId=card_front, state='hidden')
     canvas.itemconfig(tagOrId=title_word, text='English', fill='white')
     canvas.itemconfig(tagOrId=text_word, text=rand_item['English'], fill='white')
 
-    print("card flip")
-
 
 # ---------------------------------------------- UI Setup ------------------------------------------- #
-
 
 window = tk.Tk()
 window.title("Flashy")
 window.config(padx=50, pady=50, bg=BACKGROUND_COLOR)
 load_data()
-# after_ids_list = window.after(ms=3000, func=flip_card)
 # Canvas widget -----------------------------------------
 canvas = tk.Canvas(width=800, height=550, bg=BACKGROUND_COLOR, highlightthickness=0)
 
@@ -122,12 +94,14 @@ canvas.grid(row=0, column=0, columnspan=2)
 # Buttons Widgets --------------------------------------------------
 
 right_sign_img = tk.PhotoImage(file="./images/right.png")
-right_sign_button = tk.Button(image=right_sign_img, highlightthickness=0, bg=BACKGROUND_COLOR, command=on_right_sigh_clicked)
+right_sign_button = tk.Button(image=right_sign_img, highlightthickness=0, bg=BACKGROUND_COLOR,
+                              command=on_right_sigh_clicked)
 
 right_sign_button.grid(row=1, column=0)
 
 cross_sign_img = tk.PhotoImage(file='./images/wrong.png')
-cross_sign_button = tk.Button(image=cross_sign_img, highlightthickness=0, bg=BACKGROUND_COLOR, command=on_cross_sign_clicked)
+cross_sign_button = tk.Button(image=cross_sign_img, highlightthickness=0, bg=BACKGROUND_COLOR,
+                              command=on_cross_sign_clicked)
 cross_sign_button.grid(row=1, column=1)
 
 window.mainloop()
