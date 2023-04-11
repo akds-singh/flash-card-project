@@ -4,40 +4,73 @@ import random
 
 BACKGROUND_COLOR = "#B1DDC6"
 after_ids_list = []
-eng_word = ''
+rand_item = {}
+is_right_sign_clicked = 0
+is_wrong_sign_clicked = 0
+words_data_list = []
 
 
-# ---------------------------------------------flip card func ---------------------------------------#
-def flip_card():
-    global after_ids_list
-    # print(after_ids_list)
-    # window.after_cancel(after_ids_list)
-    # canvas.itemconfig(tagOrId=card_back, state='normal')
-    canvas.itemconfig(tagOrId=card_front, state='hidden')
-    canvas.itemconfig(tagOrId=title_word, text='English', fill='white')
-    canvas.itemconfig(tagOrId=text_word, text=eng_word, fill='white')
+def on_right_sigh_clicked():
+    next_card()
+    save_into_words_to_learn_csv_file()
+    # flip_card()
+    # if is_right_sign_clicked:
+    #     # index_num = words_data_list.index(rand_item)
+    #     # print(index_num)
+    #     # words_data_list.pop(index_num)
+    #     words_data_list.remove(rand_item)
+    #     save_into_words_to_learn_csv_file()
+    #
+    #     # is_right_sign_clicked = 0
 
-    print("card flip")
+
+def on_cross_sign_clicked():
+    next_card()
 
 
 # --------------------------------------------- Get Words From CSV File ----------------------------------- #
 
 # Getting the French and English word form .CSV file  and convert onto list of dict.-----
-df = pandas.read_csv(filepath_or_buffer="./data/french_words.csv")
-list_data = df.to_dict(orient='records')
+
+def load_data():
+    global words_data_list
+    try:
+        df = pandas.read_csv(filepath_or_buffer="./data/words_to_learn.csv")
+    except FileNotFoundError:
+        df = pandas.read_csv(filepath_or_buffer="./data/french_words.csv")
+        words_data_list = df.to_dict(orient='records')
+    else:
+        words_data_list = df.to_dict(orient='records')
+
+    # save_into_words_to_learn_csv_file()
+    print(words_data_list)
 
 
-# print(list_data)
+# ------------------------------Create CSV file to save words  that need to learn -----------------------#
+def save_into_words_to_learn_csv_file():
+    # load all data  to words_to_learn.csv file form words_data_list
+    print(words_data_list)
+    words_data_list.remove(rand_item)
+    df = pandas.DataFrame(words_data_list)
+    # print(df)
+    df = df[['French', 'English']]
+    df.to_csv('./data/words_to_learn.csv', index=False)
+
 
 # func for choice a random word form above dict------------------
-def random_words():
-    global after_ids_list, eng_word
+
+def next_card():
+    global after_ids_list, rand_item
     print(after_ids_list)
     # french_words_list = [val for val in dict_from_list_data.keys()]
-    rand_item = random.choice(list_data)
+    rand_item = random.choice(words_data_list)
     print(rand_item)
+
     french_word = rand_item['French']
     eng_word = rand_item['English']
+
+    # on_right_sigh_clicked()
+
     canvas.itemconfig(tagOrId=card_front, state='normal')
     canvas.itemconfig(tagOrId=title_word, text='French', fill='black')
     canvas.itemconfig(tagOrId=text_word, text=french_word, fill='black')
@@ -45,11 +78,23 @@ def random_words():
     after_id = window.after(ms=3000, func=flip_card)
     after_ids_list.append(after_id)
 
-    for val in range(0, len(after_ids_list)-1):
+    for val in range(0, len(after_ids_list) - 1):
         val_str = after_ids_list[val]
         window.after_cancel(val_str)
         after_ids_list.pop(val)
+
+
+# ---------------------------------------------flip card function ---------------------------------------#
+def flip_card():
+    global after_ids_list
+    # print(after_ids_list)
     # window.after_cancel(after_ids_list)
+    # canvas.itemconfig(tagOrId=card_back, state='normal')
+    canvas.itemconfig(tagOrId=card_front, state='hidden')
+    canvas.itemconfig(tagOrId=title_word, text='English', fill='white')
+    canvas.itemconfig(tagOrId=text_word, text=rand_item['English'], fill='white')
+
+    print("card flip")
 
 
 # ---------------------------------------------- UI Setup ------------------------------------------- #
@@ -58,7 +103,7 @@ def random_words():
 window = tk.Tk()
 window.title("Flashy")
 window.config(padx=50, pady=50, bg=BACKGROUND_COLOR)
-
+load_data()
 # after_ids_list = window.after(ms=3000, func=flip_card)
 # Canvas widget -----------------------------------------
 canvas = tk.Canvas(width=800, height=550, bg=BACKGROUND_COLOR, highlightthickness=0)
@@ -77,11 +122,12 @@ canvas.grid(row=0, column=0, columnspan=2)
 # Buttons Widgets --------------------------------------------------
 
 right_sign_img = tk.PhotoImage(file="./images/right.png")
-right_sign_button = tk.Button(image=right_sign_img, highlightthickness=0, bg=BACKGROUND_COLOR, command=random_words)
+right_sign_button = tk.Button(image=right_sign_img, highlightthickness=0, bg=BACKGROUND_COLOR, command=on_right_sigh_clicked)
+
 right_sign_button.grid(row=1, column=0)
 
-wrong_sign_img = tk.PhotoImage(file='./images/wrong.png')
-wrong_sign_button = tk.Button(image=wrong_sign_img, highlightthickness=0, bg=BACKGROUND_COLOR, command=random_words)
-wrong_sign_button.grid(row=1, column=1)
+cross_sign_img = tk.PhotoImage(file='./images/wrong.png')
+cross_sign_button = tk.Button(image=cross_sign_img, highlightthickness=0, bg=BACKGROUND_COLOR, command=on_cross_sign_clicked)
+cross_sign_button.grid(row=1, column=1)
 
 window.mainloop()
